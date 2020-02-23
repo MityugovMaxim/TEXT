@@ -56,13 +56,6 @@ public class BitmapFont : ScriptableObject, IEnumerable<BitmapGlyph>
 
 	[NonSerialized] Dictionary<char, BitmapGlyph> m_Cache;
 
-	public static BitmapFont Create(int _Width, int _Height)
-	{
-		BitmapFont font = CreateInstance<BitmapFont>();
-		font.m_Glyphs = new List<BitmapGlyph>();
-		return font;
-	}
-
 	void Unpack()
 	{
 		m_Cache = new Dictionary<char, BitmapGlyph>();
@@ -91,6 +84,9 @@ public class BitmapFont : ScriptableObject, IEnumerable<BitmapGlyph>
 
 	public BitmapGlyph GetGlyph(char _Character)
 	{
+		if (char.IsWhiteSpace(_Character) || _Character == '\n')
+			return null;
+		
 		if (m_Cache == null)
 			Unpack();
 		
@@ -134,9 +130,6 @@ public class BitmapFont : ScriptableObject, IEnumerable<BitmapGlyph>
 	{
 		if (char.IsWhiteSpace(_Character))
 			return Ascender;
-		
-		if (_Character == '\n')
-			return 0;
 		
 		BitmapGlyph glyph = GetGlyph(_Character);
 		

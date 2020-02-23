@@ -261,14 +261,15 @@ public class BitmapText : MaskableGraphic
 		
 		foreach (char character in m_TagText.Text)
 		{
-			lineBuilder.Append(character);
-			
-			if (character != '\n')
-				continue;
-			
-			m_Lines.Add(lineBuilder.ToString());
-			
-			lineBuilder.Clear();
+			if (character == '\n')
+			{
+				m_Lines.Add(lineBuilder.ToString());
+				lineBuilder.Clear();
+			}
+			else
+			{
+				lineBuilder.Append(character);
+			}
 		}
 		m_Lines.Add(lineBuilder.ToString());
 	}
@@ -327,7 +328,7 @@ public class BitmapText : MaskableGraphic
 				m_Characters.Add(new BitmapCharacter());
 			
 			m_Characters[index].Index   = index;
-			m_Characters[index].Enabled = true;
+			m_Characters[index].Enabled = !char.IsWhiteSpace(character);
 			index++;
 		}
 	}

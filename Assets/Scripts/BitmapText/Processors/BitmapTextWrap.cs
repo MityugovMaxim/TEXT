@@ -47,6 +47,8 @@ public class BitmapTextWrap : BitmapTextProcessor
 		
 		float lineWidth = 0;
 		
+		HashSet<char> trimChars = new HashSet<char>(TrimChars);
+		
 		StringBuilder lineBuilder = new StringBuilder();
 		
 		foreach (string word in Words(text))
@@ -54,19 +56,19 @@ public class BitmapTextWrap : BitmapTextProcessor
 			float wordWidth = CalcWidth(word);
 			if (lineBuilder.Length > 0 && lineWidth + wordWidth > _Width)
 			{
-				yield return lineBuilder.ToString().TrimEnd();
+				yield return lineBuilder.ToString().TrimEnd(TrimChars);
 				
 				lineWidth = 0;
 				lineBuilder.Clear();
 				
-				if (word.Length == 1 && char.IsWhiteSpace(word, 0))
+				if (word.Length == 1 && trimChars.Contains(word[0]))
 					continue;
 			}
 			
 			lineWidth += wordWidth + CharSpacing * CharSize;
 			lineBuilder.Append(word);
 		}
-		yield return lineBuilder.ToString().TrimEnd();
+		yield return lineBuilder.ToString().TrimEnd(TrimChars);
 	}
 
 	static IEnumerable<string> Words(string _Text)
@@ -91,22 +93,5 @@ public class BitmapTextWrap : BitmapTextProcessor
 			}
 		}
 		yield return wordBuilder.ToString();
-	}
-
-	string TrimEnd(string _Text)
-	{
-		const char replace = '\u200B';
-		
-		char[] text = _Text.ToCharArray();
-		for (int i = 0; i < text.Length; i++)
-		{
-			if (text[i] == ' ')
-			{
-				text[i] = replace;
-				continue;
-			}
-			break;
-		}
-		return new string(text);
 	}
 }
