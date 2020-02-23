@@ -21,7 +21,7 @@ public class BitmapTextShowAnimation : BitmapTextAnimation
 		Vector2 offset = new Vector2(2.5f, 5) * CharSize;
 		float   step   = 1.0f / m_Size;
 		
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 		{
 			float phase = m_Phase - character.Index * step;
 			
@@ -34,7 +34,7 @@ public class BitmapTextShowAnimation : BitmapTextAnimation
 
 	public override void Restore()
 	{
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 		{
 			character.Tint   = Color.white;
 			character.Offset = Vector2.zero;

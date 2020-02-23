@@ -12,7 +12,7 @@ public class BitmapTextWaveAnimation : BitmapTextAnimation
 	public BitmapTextWaveAnimation(BitmapText _BitmapText, TagText.Node _Node) : base(_BitmapText, _Node)
 	{
 		m_Speed     = _Node.GetFloat("speed", 1);
-		m_Size      = _Node.GetFloat("size", 350);
+		m_Size      = _Node.GetFloat("size", 150);
 		m_Amplitude = _Node.GetFloat("amplitude", 2);
 	}
 
@@ -20,7 +20,7 @@ public class BitmapTextWaveAnimation : BitmapTextAnimation
 	{
 		m_Phase += Time.deltaTime * m_Speed;
 		
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 		{
 			float phase = GetPhaseByPosition(character, m_Size, m_Phase);
 			
@@ -32,7 +32,7 @@ public class BitmapTextWaveAnimation : BitmapTextAnimation
 
 	public override void Restore()
 	{
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Offset = Vector2.zero;
 	}
 

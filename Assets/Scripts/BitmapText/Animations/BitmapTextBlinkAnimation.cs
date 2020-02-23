@@ -22,7 +22,7 @@ public class BitmapTextBlinkAnimation : BitmapTextAnimation
 		
 		float phase = Mathf.PingPong(m_Phase, 1);
 		
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Tint *= Color.Lerp(m_Source, m_Target, phase);
 		
 		Rebuild();
@@ -30,7 +30,7 @@ public class BitmapTextBlinkAnimation : BitmapTextAnimation
 
 	public override void Restore()
 	{
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Tint = Color.white;
 	}
 }

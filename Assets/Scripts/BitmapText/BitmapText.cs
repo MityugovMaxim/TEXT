@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,7 +43,7 @@ public class BitmapText : MaskableGraphic
 		}
 	}
 
-	public List<string> Lines
+	public List<BitmapLine> Lines
 	{
 		get { return m_Lines; }
 	}
@@ -112,12 +111,6 @@ public class BitmapText : MaskableGraphic
 		}
 	}
 
-	public float Scale
-	{
-		get { return m_Scale; }
-		set { m_Scale = value; }
-	}
-
 	public float MinSize
 	{
 		get { return m_MinSize; }
@@ -150,6 +143,8 @@ public class BitmapText : MaskableGraphic
 		}
 	}
 
+	public float Scale { get; set; }
+
 	[SerializeField, HideInInspector] string     m_Text;
 	[SerializeField, HideInInspector] BitmapFont m_Font;
 	[SerializeField, HideInInspector] Alignment  m_Alignment;
@@ -160,19 +155,18 @@ public class BitmapText : MaskableGraphic
 	[SerializeField] float m_MinSize;
 	[SerializeField] float m_MaxSize;
 
-	[SerializeField] bool m_WrapEnabled;
-	[SerializeField] bool m_FitEnabled;
-	[SerializeField] bool m_ClipEnabled;
+	[SerializeField] bool m_Wrap;
+	[SerializeField] bool m_Fit;
+	[SerializeField] bool m_Clip;
 
-	[SerializeField] float m_Scale = 1;
+	BitmapTextProcessor m_PositionHorizontalProcessor;
+	BitmapTextProcessor m_PositionVerticalProcessor;
+	BitmapTextProcessor m_WrapProcessor;
+	BitmapTextProcessor m_FitProcessor;
+	BitmapTextProcessor m_AlignProcessor;
+	BitmapTextProcessor m_ClipProcessor;
 
-	BitmapTextProcessor m_Wrap;
-	BitmapTextProcessor m_Fit;
-	BitmapTextProcessor m_BestFit;
-	BitmapTextProcessor m_Render;
-	BitmapTextProcessor m_Clip;
-
-	[NonSerialized] List<string>              m_Lines;
+	[NonSerialized] List<BitmapLine>          m_Lines;
 	[NonSerialized] List<BitmapCharacter>     m_Characters;
 	[NonSerialized] List<BitmapTextAnimation> m_Animations;
 
@@ -212,12 +206,12 @@ public class BitmapText : MaskableGraphic
 		if (Characters == null)
 			return;
 		
-		foreach (BitmapCharacter characterInfo in Characters)
+		foreach (BitmapCharacter character in Characters)
 		{
-			if (characterInfo == null || !characterInfo.Enabled)
+			if (character == null || !character.Enabled || !character.Visible)
 				continue;
 			
-			characterInfo.Fill(ref m_Buffer);
+			character.Fill(ref m_Buffer);
 			
 			_VertexHelper.AddUIVertexQuad(m_Buffer);
 		}
@@ -225,77 +219,118 @@ public class BitmapText : MaskableGraphic
 
 	void SetTextDirty()
 	{
-		SetLinesDirty();
+		ProcessCharacters();
 		
-		WordWrap();
+		ProcessAnimations();
+		
+		Wrap();
 		
 		Fit();
 		
-		BestFit();
+		PositionHorizontal();
 		
-		SetAnimationsDirty();
+		PositionVertical();
 		
-		SetCharactersDirty();
-		
-		Render();
+		Align();
 		
 		Clip();
 	}
 
-	void SetLinesDirty()
+	void ProcessCharacters()
 	{
+		Scale = 1;
+		
 		if (m_TagText == null)
 			m_TagText = new TagText();
 		
 		m_TagText.Load(Text);
 		
 		if (m_Lines == null)
-			m_Lines = new List<string>();
+			m_Lines = new List<BitmapLine>();
 		else
 			m_Lines.Clear();
 		
-		if (string.IsNullOrEmpty(m_TagText.Text))
-			return;
+		if (m_Characters == null)
+			m_Characters = new List<BitmapCharacter>();
 		
-		StringBuilder lineBuilder = new StringBuilder();
+		int delta = m_TagText.Text.Length - m_Characters.Count;
+		for (int i = 0; i < delta; i++)
+			m_Characters.Add(new BitmapCharacter());
 		
-		foreach (char character in m_TagText.Text)
+		for (int i = 0; i < m_Characters.Count; i++)
 		{
-			if (character == '\n')
-			{
-				m_Lines.Add(lineBuilder.ToString());
-				lineBuilder.Clear();
-			}
-			else
-			{
-				lineBuilder.Append(character);
-			}
+			if (m_Characters[i] == null)
+				m_Characters[i] = new BitmapCharacter();
+			
+			BitmapCharacter character = m_Characters[i];
+			
+			character.Index   = -1;
+			character.Enabled = false;
+			character.Visible = false;
+			character.Tint    = Color.white;
+			character.Offset  = Vector2.zero;
 		}
-		m_Lines.Add(lineBuilder.ToString());
+		
+		List<BitmapCharacter> line = new List<BitmapCharacter>();
+		int index = 0;
+		for (int i = 0; i < m_TagText.Text.Length; i++)
+		{
+			if (m_TagText.Text[i] == '\n')
+			{
+				m_Lines.Add(new BitmapLine(line));
+				line.Clear();
+				
+				index++;
+				continue;
+			}
+			
+			BitmapCharacter character = m_Characters[index];
+			
+			character.Index     = i;
+			character.Enabled   = true;
+			character.Character = m_TagText.Text[i];
+			
+			BitmapGlyph glyph = Font.GetGlyph(character.Character);
+			if (glyph != null)
+			{
+				Rect glyphRect = glyph.Rect;
+				character.Visible        = true;
+				character.Rect           = glyphRect.Scale(CharSize);
+				character.BaselineOffset = glyph.Offset * CharSize;
+				character.LineHeight     = Font.Ascender * CharSize;
+				character.UV             = glyph.UV;
+				character.Color          = color;
+			}
+			else if (character.Character == ' ')
+			{
+				Rect glyphRect = new Rect(0, 0, Font.SpaceWidth, 0);
+				
+				character.Visible = false;
+				character.Rect    = glyphRect.Scale(CharSize);
+			}
+			
+			line.Add(character);
+			
+			index++;
+		}
+		m_Lines.Add(new BitmapLine(line));
+		line.Clear();
 	}
 
-	void SetAnimationsDirty()
+	void ProcessAnimations()
 	{
 		if (m_Animations == null)
 			m_Animations = new List<BitmapTextAnimation>();
-		
-		foreach (BitmapTextAnimation animation in m_Animations)
-			animation.Restore();
-		
-		m_Animations.Clear();
-		
-		if (m_TagText == null || m_TagText.Nodes == null)
-			return;
+		else
+			m_Animations.Clear();
 		
 		foreach (TagText.Node node in m_TagText.Nodes)
 		{
 			Type type = TagPrebuild.GetTagType(node.Tag);
-			
 			if (type == null)
 				continue;
 			
 			BitmapTextAnimation animation = Activator.CreateInstance(type, this, node) as BitmapTextAnimation;
-			
 			if (animation == null)
 				continue;
 			
@@ -303,85 +338,60 @@ public class BitmapText : MaskableGraphic
 		}
 	}
 
-	void SetCharactersDirty()
+	void Wrap()
 	{
-		if (m_Characters == null)
-			m_Characters = new List<BitmapCharacter>();
-		
-		for (int i = 0; i < m_Characters.Count; i++)
-		{
-			if (m_Characters[i] == null)
-				m_Characters[i] = new BitmapCharacter();
-			
-			m_Characters[i].Index   = -1;
-			m_Characters[i].Enabled = false;
-		}
-		
-		if (Lines == null)
+		if (!m_Wrap)
 			return;
 		
-		int index = 0;
-		foreach (string line in Lines)
-		foreach (char character in line)
-		{
-			if (index >= m_Characters.Count)
-				m_Characters.Add(new BitmapCharacter());
-			
-			m_Characters[index].Index   = index;
-			m_Characters[index].Enabled = !char.IsWhiteSpace(character);
-			index++;
-		}
-	}
-
-	void BestFit()
-	{
-		if (!m_WrapEnabled || !m_FitEnabled)
-			return;
+		if (m_WrapProcessor == null)
+			m_WrapProcessor = new BitmapTextWrapProcessor(this);
 		
-		if (m_BestFit == null)
-			m_BestFit = new BitmapTextBestFit(this);
-		
-		m_BestFit.Process();
-	}
-
-	void WordWrap()
-	{
-		if (!m_WrapEnabled || m_FitEnabled)
-			return;
-		
-		if (m_Wrap == null)
-			m_Wrap = new BitmapTextWrap(this);
-		
-		m_Wrap.Process();
+		m_WrapProcessor.Process();
 	}
 
 	void Fit()
 	{
-		if (!m_FitEnabled || m_WrapEnabled)
+		if (!m_Fit)
 			return;
 		
-		if (m_Fit == null)
-			m_Fit = new BitmapTextFit(this);
+		if (m_FitProcessor == null)
+			m_FitProcessor = new BitmapTextFitProcessor(this);
 		
-		m_Fit.Process();
+		m_FitProcessor.Process();
 	}
 
-	void Render()
+	void PositionHorizontal()
 	{
-		if (m_Render == null)
-			m_Render = new BitmapTextRender(this);
+		if (m_PositionHorizontalProcessor == null)
+			m_PositionHorizontalProcessor = new BitmapTextPositionProcessor(this, BitmapTextPositionProcessor.Direction.Horizontal);
 		
-		m_Render.Process();
+		m_PositionHorizontalProcessor.Process();
+	}
+
+	void PositionVertical()
+	{
+		if (m_PositionVerticalProcessor == null)
+			m_PositionVerticalProcessor = new BitmapTextPositionProcessor(this, BitmapTextPositionProcessor.Direction.Vertical);
+		
+		m_PositionVerticalProcessor.Process();
+	}
+
+	void Align()
+	{
+		if (m_AlignProcessor == null)
+			m_AlignProcessor = new BitmapTextAlignProcessor(this);
+		
+		m_AlignProcessor.Process();
 	}
 
 	void Clip()
 	{
-		if (!m_ClipEnabled)
+		if (!m_Clip)
 			return;
 		
-		if (m_Clip == null)
-			m_Clip = new BitmapTextClip(this);
+		if (m_ClipProcessor == null)
+			m_ClipProcessor = new BitmapTextClipProcessor(this);
 		
-		m_Clip.Process();
+		m_ClipProcessor.Process();
 	}
 }

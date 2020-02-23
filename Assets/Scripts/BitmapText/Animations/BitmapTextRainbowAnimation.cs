@@ -36,7 +36,7 @@ public class BitmapTextRainbowAnimation : BitmapTextAnimation
 	{
 		m_Phase = Mathf.Repeat(m_Phase + Time.deltaTime * m_Speed, 1);
 		
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Tint *= m_Gradient.Evaluate(m_Phase);
 		
 		Rebuild();
@@ -44,7 +44,7 @@ public class BitmapTextRainbowAnimation : BitmapTextAnimation
 
 	public override void Restore()
 	{
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Tint = Color.white;
 	}
 }

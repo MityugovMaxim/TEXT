@@ -1,14 +1,15 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class BitmapTextClip : BitmapTextProcessor
+public class BitmapTextClipProcessor : BitmapTextProcessor
 {
 	public override void Process()
 	{
 		Rect rect = Rect;
-		foreach (BitmapCharacter characterInfo in Characters)
+		foreach (BitmapCharacter character in Characters)
 		{
-			Rect characterUV   = characterInfo.UV;
-			Rect characterRect = characterInfo.Rect;
+			Rect characterUV   = character.UV;
+			Rect characterRect = character.RealRect;
 			
 			// Left clip
 			if (characterRect.xMin < rect.xMin && characterRect.xMax > rect.xMin)
@@ -86,11 +87,12 @@ public class BitmapTextClip : BitmapTextProcessor
 				);
 			}
 			
-			characterInfo.UV      =  characterUV;
-			characterInfo.Rect    =  characterRect;
-			characterInfo.Enabled &= rect.Overlaps(characterRect);
+			character.UV       = characterUV;
+			character.RealRect = characterRect;
+			
+			character.Enabled &= rect.Overlaps(characterRect);
 		}
 	}
 
-	public BitmapTextClip(BitmapText _BitmapText) : base(_BitmapText) { }
+	public BitmapTextClipProcessor(BitmapText _BitmapText) : base(_BitmapText) { }
 }

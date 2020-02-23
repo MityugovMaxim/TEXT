@@ -8,24 +8,35 @@ public abstract class BitmapTextAnimation
 		get { return m_BitmapText.GetPixelAdjustedRect(); }
 	}
 
+	public List<BitmapCharacter> Characters
+	{
+		get { return m_Characters; }
+	}
+
 	protected float CharSize
 	{
 		get { return m_BitmapText.CharSize * m_BitmapText.Scale; }
 	}
 
-	readonly BitmapText m_BitmapText;
-	readonly int        m_Index;
-	readonly int        m_Length;
+	readonly BitmapText            m_BitmapText;
+	readonly List<BitmapCharacter> m_Characters;
 
 	public BitmapTextAnimation(BitmapText _BitmapText, TagText.Node _Node)
 	{
 		m_BitmapText = _BitmapText;
+		m_Characters = new List<BitmapCharacter>();
 		
 		if (_Node == null)
 			return;
 		
-		m_Index  = _Node.Index;
-		m_Length = _Node.Length;
+		int sourceIndex = _Node.Index;
+		int targetIndex = _Node.Index + _Node.Length;
+		
+		foreach (BitmapCharacter character in m_BitmapText.Characters)
+		{
+			if (character.Enabled && character.Visible && character.Index >= sourceIndex && character.Index <= targetIndex)
+				m_Characters.Add(character);
+		}
 	}
 
 	public abstract void Process();
@@ -55,19 +66,6 @@ public abstract class BitmapTextAnimation
 		
 		Rect rect = Rect;
 		
-		return _Phase - (_Character.Rect.center.x - rect.x) / _Size;
-	}
-
-	protected IEnumerable<BitmapCharacter> GetCharacters()
-	{
-		if (m_BitmapText == null || m_BitmapText.Characters == null)
-			yield break;
-		
-		int index = Mathf.Max(m_Index, 0);
-		for (int i = 0; i < m_Length; i++)
-		{
-			if (index + i < m_BitmapText.Characters.Count)
-				yield return m_BitmapText.Characters[index + i];
-		}
+		return _Phase - (_Character.Rect.center.x - rect.x) / (_Size * CharSize);
 	}
 }

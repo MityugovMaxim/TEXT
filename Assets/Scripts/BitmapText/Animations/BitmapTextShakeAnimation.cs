@@ -27,7 +27,7 @@ public class BitmapTextShakeAnimation : BitmapTextAnimation
 	{
 		m_Phase += Time.deltaTime * m_Speed;
 		
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 		{
 			float phase = Mathf.Repeat(GetPhaseBySeed(character, 128812048, m_Phase), 1);
 			
@@ -39,7 +39,7 @@ public class BitmapTextShakeAnimation : BitmapTextAnimation
 
 	public override void Restore()
 	{
-		foreach (BitmapCharacter character in GetCharacters())
+		foreach (BitmapCharacter character in Characters)
 			character.Offset = Vector2.zero;
 	}
 }

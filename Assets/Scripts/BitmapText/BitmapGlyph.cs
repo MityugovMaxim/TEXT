@@ -14,6 +14,11 @@ public class BitmapGlyph
 		get { return m_Aliases; }
 	}
 
+	public Rect Rect
+	{
+		get { return new Rect(0, 0, Width, Height); }
+	}
+
 	public int Width
 	{
 		get { return m_Width; }

@@ -42,4 +42,12 @@ public static class RectExtension
 			size.y
 		);
 	}
+
+	public static Rect Scale(this Rect _Rect, float _Scale)
+	{
+		return new Rect(
+			_Rect.position * _Scale,
+			_Rect.size * _Scale
+		);
+	}
 }

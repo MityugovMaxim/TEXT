@@ -3,19 +3,12 @@ using System.Collections.Generic;
 
 public abstract class BitmapTextProcessor
 {
-	protected static readonly char[] TrimChars = { ' ', '\t' };
-
 	protected BitmapText BitmapText
 	{
 		get { return m_BitmapText; }
 	}
 
-	protected Color Color
-	{
-		get { return BitmapText.color; }
-	}
-
-	protected List<string> Lines
+	protected List<BitmapLine> Lines
 	{
 		get { return BitmapText.Lines; }
 	}
@@ -40,30 +33,24 @@ public abstract class BitmapTextProcessor
 		get { return BitmapText.GetPixelAdjustedRect(); }
 	}
 
-	protected Vector2 Pivot
+	protected float LineHeight
 	{
-		get { return BitmapText.rectTransform.pivot; }
+		get { return (Font.Ascender + Font.Descender) * CharSize; }
 	}
 
-	protected float LineGap
+	protected float LineSpacing
 	{
-		get { return Font.LineGap + BitmapText.LineSpacing; }
+		get { return (Font.LineGap + BitmapText.LineSpacing) * CharSize; }
 	}
 
 	protected float CharSpacing
 	{
-		get { return Font.Kerning + BitmapText.CharSpacing; }
+		get { return (Font.Kerning + BitmapText.CharSpacing) * CharSize; }
 	}
 
 	protected float CharSize
 	{
 		get { return BitmapText.CharSize * BitmapText.Scale; }
-	}
-
-	protected float Scale
-	{
-		get { return BitmapText.Scale; }
-		set { BitmapText.Scale = value; }
 	}
 
 	protected float MinSize
@@ -78,69 +65,61 @@ public abstract class BitmapTextProcessor
 
 	readonly BitmapText m_BitmapText;
 
-	public BitmapTextProcessor(BitmapText _BitmapText)
+	protected BitmapTextProcessor(BitmapText _BitmapText)
 	{
 		m_BitmapText = _BitmapText;
 	}
 
 	public abstract void Process();
 
-	protected float CalcWidth(ICollection<string> _Lines)
+	protected float CalcTotalWidth()
 	{
 		float width = 0;
-		if (_Lines != null)
-		{
-			foreach (string line in _Lines)
-				width = Mathf.Max(width, CalcWidth(line));
-		}
+		foreach (BitmapLine line in Lines)
+			width = Mathf.Max(width, CalcWidth(line));
 		return width;
 	}
 
-	protected float CalcHeight(ICollection<string> _Lines)
+	protected float CalcTotalHeight()
 	{
-		float height = 0;
-		int count = 0;
-		if (_Lines != null)
-		{
-			foreach (string line in _Lines)
-			{
-				height += CalcHeight(line);
-				
-				count++;
-			}
-		}
-		return height + LineGap * CharSize * Mathf.Max(0, count - 1);
+		return Lines.Count * LineHeight + Mathf.Max(0, Lines.Count - 1) * LineSpacing;
 	}
 
-	protected float CalcWidth(string _Text)
+	protected float CalcWidth(BitmapLine _Line)
 	{
+		if (_Line == null || _Line.Count == 0)
+			return 0;
+		
+		int   count = 0;
 		float width = 0;
-		if (!string.IsNullOrEmpty(_Text))
+		foreach (BitmapCharacter character in _Line)
 		{
-			foreach (char character in _Text)
-			{
-				if (character == '\n')
-					continue;
-				
-				width += Font.CalcWidth(character) + CharSpacing;
-			}
-			width = Mathf.Max(0, width - CharSpacing);
+			if (!character.Enabled)
+				continue;
+			
+			width += character.Rect.width;
+			
+			count++;
 		}
-		return width * CharSize;
+		return width + Mathf.Max(0, count - 1) * CharSpacing;
 	}
 
-	protected float CalcHeight(string _Text)
+	protected float CalcWidth(BitmapCharacter[] _Characters)
 	{
-		return (Font.Ascender + Font.Descender) * CharSize;
-	}
-
-	protected void Rebuild()
-	{
-		m_BitmapText.SetVerticesDirty();
-	}
-
-	protected void Repaint()
-	{
-		m_BitmapText.SetVerticesDirty();
+		if (_Characters == null || _Characters.Length == 0)
+			return 0;
+		
+		int   count = 0;
+		float width = 0;
+		foreach (BitmapCharacter character in _Characters)
+		{
+			if (!character.Enabled)
+				continue;
+			
+			width += character.Rect.width;
+			
+			count++;
+		}
+		return width + Mathf.Max(0, count - 1) * CharSpacing;
 	}
 }
