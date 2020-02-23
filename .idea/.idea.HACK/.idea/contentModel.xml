@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$PROJECT_DIR$" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="Editor" t="Include">
+          <e p="Scripts" t="Include">
+            <e p="Attributes" t="Include">
+              <e p="ReadOnlyDrawer.cs" t="Include" />
+            </e>
+            <e p="BitmapText" t="Include">
+              <e p="BitmapFontEditor.cs" t="Include" />
+              <e p="BitmapTextEditor.cs" t="Include" />
+            </e>
+            <e p="Prebuild" t="Include">
+              <e p="TagPrebuildGenerator.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Scripts" t="Include">
+          <e p="Attributes" t="Include">
+            <e p="ReadOnlyAttribute.cs" t="Include" />
+          </e>
+          <e p="BitmapText" t="Include">
+            <e p="Animations" t="Include">
+              <e p="BitmapTextAnimation.cs" t="Include" />
+              <e p="BitmapTextBlinkAnimation.cs" t="Include" />
+              <e p="BitmapTextRainbowAnimation.cs" t="Include" />
+              <e p="BitmapTextShakeAnimation.cs" t="Include" />
+              <e p="BitmapTextShowAnimation.cs" t="Include" />
+              <e p="BitmapTextWaveAnimation.cs" t="Include" />
+            </e>
+            <e p="BitmapCharacter.cs" t="Include" />
+            <e p="BitmapFont.cs" t="Include" />
+            <e p="BitmapGlyph.cs" t="Include" />
+            <e p="BitmapText.cs" t="Include" />
+            <e p="Processors" t="Include">
+              <e p="BitmapTextBestFit.cs" t="Include" />
+              <e p="BitmapTextClip.cs" t="Include" />
+              <e p="BitmapTextFit.cs" t="Include" />
+              <e p="BitmapTextProcessor.cs" t="Include" />
+              <e p="BitmapTextProcessorType.cs" t="Include" />
+              <e p="BitmapTextRender.cs" t="Include" />
+              <e p="BitmapTextTruncate.cs" t="Include" />
+              <e p="BitmapTextWrap.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Common" t="Include">
+            <e p="Alignment.cs" t="Include" />
+            <e p="Utility.cs" t="Include" />
+          </e>
+          <e p="extensions" t="Include">
+            <e p="AlignmentExtension.cs" t="Include" />
+            <e p="RectExtension.cs" t="Include" />
+          </e>
+          <e p="GameAssembly.asmdef" t="Include" />
+          <e p="Prebuild" t="Include">
+            <e p="TagPrebuild.cs" t="Include" />
+          </e>
+          <e p="TagText" t="Include">
+            <e p="TagAttribute.cs" t="Include" />
+            <e p="TagText.cs" t="Include" />
+          </e>
+        </e>
+        <e p="Tests" t="Include">
+          <e p="TagTextTest.cs" t="Include" />
+          <e p="Tests.asmdef" t="Include" />
+        </e>
+      </e>
+      <e p="GameAssembly.csproj" t="IncludeRecursive" />
+      <e p="HACK.sln" t="IncludeFlat" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Temp/bin" t="ExcludeRecursive" />
+      <e p="Tests.csproj" t="IncludeRecursive" />
+    </e>
+    <e p="$USER_HOME$/Library/Caches/Rider2019.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/Rider2019.3/resharper-host/local/Transient/ReSharperHost/v193/SolutionCaches/_HACK.-651777902.00" t="ExcludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/extensions" t="IncludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/scratches" t="IncludeRecursive" />
+  </component>
+</project>
