@@ -424,8 +424,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Text: "<show><wave>\xC5HELLO\nMY <rainbow>NAME\nIS</rainbow></wave> MAXIM\nAND
-    <shake>WHAT'S\n YOURS?</shake></show>"
+  m_Text: '<show speed=0.5><wave>HELLO WORLD
+
+    I''M <rainbow>ANIMATED
+
+    TEXT</rainbow></wave>!
+    I''M
+
+    PRETTY AWESOME
+
+    <shake amplitude=1>RIGHT?</shake></show>'
   m_Font: {fileID: 11400000, guid: 238160cf865cd4ef683b1c81353c7e00, type: 2}
   m_Alignment: 4
   m_CharSize: 3
